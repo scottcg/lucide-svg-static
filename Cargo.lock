@@ -3,13 +3,6 @@
 version = 4
 
 [[package]]
-name = "lucide-gpui"
-version = "1.33.0"
-dependencies = [
- "lucide-static-svg",
-]
-
-[[package]]
 name = "lucide-static-svg"
 version = "1.33.0"
 

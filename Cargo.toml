@@ -1,7 +1,6 @@
 [workspace]
 members = [
     "crates/lucide-static-svg",
-    "crates/lucide-gpui",
     "xtask",
 ]
 resolver = "2"
@@ -9,8 +8,9 @@ resolver = "2"
 [workspace.package]
 version = "1.33.0"
 edition = "2021"
-license = "MIT OR ISC"
+license = "MIT AND ISC"
 repository = "https://github.com/scottcg/lucide-svg-static"
+homepage = "https://lucide.dev"
 description = "Official Lucide icons as static SVG data for Rust"
 
 [workspace.lints.rust]

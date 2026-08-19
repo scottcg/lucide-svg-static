@@ -4,7 +4,11 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
+homepage.workspace = true
 description = "Official Lucide icons as static SVG vector data"
+readme = "../../README.md"
+keywords = ["lucide", "icons", "svg", "vector-graphics"]
+categories = ["graphics"]
 publish = true
 
 [features]
@@ -16,4 +20,3 @@ font = []
 
 [lints]
 workspace = true
-

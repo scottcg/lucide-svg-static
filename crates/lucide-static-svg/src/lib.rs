@@ -12,7 +12,7 @@ pub use generated::version::{
     LUCIDE_ICON_COUNT, LUCIDE_RELEASE_TAG, LUCIDE_SOURCE_URL, LUCIDE_VERSION,
 };
 
-/// Resolves a GPUI-compatible asset path to embedded SVG bytes.
+/// Resolves an asset path to embedded SVG bytes.
 #[cfg(feature = "svg")]
 pub fn asset_bytes(path: &str) -> Option<&'static [u8]> {
     Icon::from_asset_path(path).map(Icon::svg_bytes)
