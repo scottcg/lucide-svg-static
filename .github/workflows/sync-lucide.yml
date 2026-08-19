@@ -1,0 +1,124 @@
+name: Sync Lucide catalog
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Optional Lucide release version, for example 1.32.0"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-lucide
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Discover and download Lucide release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${REQUESTED_VERSION}" ]]; then
+            requested="${REQUESTED_VERSION#v}"
+            release_json="$(gh api "repos/lucide-icons/lucide/releases/tags/${requested}")"
+          else
+            release_json="$(gh api repos/lucide-icons/lucide/releases/latest)"
+          fi
+
+          tag="$(jq -r '.tag_name' <<<"${release_json}")"
+          version="${tag#v}"
+          asset_name="lucide-icons-${version}.zip"
+          asset="$(jq -c --arg name "${asset_name}" '.assets[] | select(.name == $name)' <<<"${release_json}")"
+
+          if [[ -z "${asset}" ]]; then
+            echo "Release ${tag} does not contain ${asset_name}" >&2
+            exit 1
+          fi
+
+          asset_url="$(jq -r '.browser_download_url' <<<"${asset}")"
+          expected_digest="$(jq -r '.digest // empty' <<<"${asset}")"
+          archive="${RUNNER_TEMP}/${asset_name}"
+          curl --fail --location --silent --show-error "${asset_url}" --output "${archive}"
+
+          actual_digest="sha256:$(sha256sum "${archive}" | cut -d' ' -f1)"
+          if [[ -n "${expected_digest}" && "${actual_digest}" != "${expected_digest}" ]]; then
+            echo "Digest mismatch: expected ${expected_digest}, got ${actual_digest}" >&2
+            exit 1
+          fi
+
+          current="$(sed -n 's/^pub const LUCIDE_VERSION: &str = "\([^"]*\)";/\1/p' crates/lucide-static-svg/src/generated/version.rs)"
+          if [[ -z "${current}" ]]; then
+            echo "Could not determine the embedded Lucide version" >&2
+            exit 1
+          fi
+
+          echo "Upstream Lucide version: ${version}"
+          echo "Embedded Lucide version: ${current}"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "archive=${archive}" >> "${GITHUB_OUTPUT}"
+          changed=true
+          if [[ "${current}" == "${version}" ]]; then
+            changed=false
+          elif [[ -z "${REQUESTED_VERSION}" && "$(printf '%s\n' "${current}" "${version}" | sort -V | tail -n1)" == "${current}" ]]; then
+            echo "Repository is already at or ahead of the upstream release; skipping downgrade."
+            changed=false
+          fi
+          echo "changed=${changed}" >> "${GITHUB_OUTPUT}"
+
+      - name: Regenerate catalog
+        if: steps.release.outputs.changed == 'true'
+        run: |
+          cargo run -p xtask -- generate \
+            --archive "${{ steps.release.outputs.archive }}" \
+            --output crates/lucide-static-svg/src/generated \
+            --tag "${{ steps.release.outputs.version }}"
+
+      - name: Verify catalog
+        if: steps.release.outputs.changed == 'true'
+        run: |
+          cargo fmt --all -- --check
+          cargo check --workspace
+          cargo test --workspace --all-features
+          cargo clippy --workspace --all-features --all-targets -- -D warnings
+
+      - name: Open update pull request
+        if: steps.release.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="automation/lucide-${VERSION}"
+          git switch -c "${branch}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add crates/lucide-static-svg/src/generated
+          git commit -m "chore: update Lucide catalog to ${VERSION}"
+          git push --set-upstream origin "${branch}"
+          gh pr create \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "${branch}" \
+            --title "chore: update Lucide catalog to ${VERSION}" \
+            --body "Updates the embedded Lucide SVG catalog from the official ${VERSION} release asset.\n\nThe catalog was regenerated and verified with the workspace checks."

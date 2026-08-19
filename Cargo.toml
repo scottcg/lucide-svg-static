@@ -1,0 +1,18 @@
+[workspace]
+members = [
+    "crates/lucide-static-svg",
+    "crates/lucide-gpui",
+    "xtask",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR ISC"
+repository = "https://github.com/scottcg/lucide-svg-static"
+description = "Official Lucide icons as static SVG data for Rust"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+

@@ -1,0 +1,19 @@
+[package]
+name = "lucide-static-svg"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Official Lucide icons as static SVG vector data"
+publish = true
+
+[features]
+default = ["svg"]
+svg = []
+path-data = []
+sprite = []
+font = []
+
+[lints]
+workspace = true
+

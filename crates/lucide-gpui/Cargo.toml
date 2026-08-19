@@ -1,0 +1,15 @@
+[package]
+name = "lucide-gpui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "GPUI integration for lucide-static-svg"
+publish = true
+
+[dependencies]
+lucide-static-svg = { path = "../lucide-static-svg", version = "0.1.0" }
+
+[lints]
+workspace = true
+
