@@ -83,9 +83,16 @@ jobs:
           fi
 
           release_tag="v${version}"
+          release_exists=false
           if gh release view "${release_tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            echo "GitHub Release ${release_tag} already exists; nothing to do."
-            should_release=false
+            release_exists=true
+            if [[ "${force_release}" == true ]]; then
+              echo "GitHub Release ${release_tag} exists; manual run will refresh it."
+              should_release=true
+            else
+              echo "GitHub Release ${release_tag} already exists; nothing to do."
+              should_release=false
+            fi
           else
             should_release=true
           fi
@@ -95,6 +102,7 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "archive=${archive}" >> "${GITHUB_OUTPUT}"
           echo "should_release=${should_release}" >> "${GITHUB_OUTPUT}"
+          echo "release_exists=${release_exists}" >> "${GITHUB_OUTPUT}"
 
       - name: Generate catalog
         if: steps.upstream.outputs.should_release == 'true'
@@ -158,9 +166,23 @@ jobs:
         run: |
           set -euo pipefail
           release_tag="v${LUCIDE_VERSION}"
-          notes="lucide-static-svg ${CRATE_VERSION}\n\nEmbedded Lucide catalog version: ${LUCIDE_VERSION}\n\nSHA-256 (${PACKAGE##*/}): ${SHA256}\n\nThis release is a downloadable GitHub crate artifact. It is not published to crates.io."
-          gh release create "${release_tag}" "${PACKAGE}" \
-            --repo "${GITHUB_REPOSITORY}" \
-            --target "$(git rev-parse HEAD)" \
-            --title "lucide-static-svg (Lucide ${LUCIDE_VERSION})" \
-            --notes "${notes}"
+          notes="$(printf 'lucide-static-svg %s\n\nEmbedded Lucide catalog version: %s\n\nSHA-256 (%s): %s\n\nThis release is a downloadable GitHub crate artifact. It is not published to crates.io.\n' \
+            "${CRATE_VERSION}" \
+            "${LUCIDE_VERSION}" \
+            "${PACKAGE##*/}" \
+            "${SHA256}")"
+          if [[ "${{ steps.upstream.outputs.release_exists }}" == true ]]; then
+            gh release upload "${release_tag}" "${PACKAGE}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --clobber
+            gh release edit "${release_tag}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --title "lucide-static-svg (Lucide ${LUCIDE_VERSION})" \
+              --notes "${notes}"
+          else
+            gh release create "${release_tag}" "${PACKAGE}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --target "$(git rev-parse HEAD)" \
+              --title "lucide-static-svg (Lucide ${LUCIDE_VERSION})" \
+              --notes "${notes}"
+          fi
