@@ -1,8 +1,5 @@
 # Lucide Static SVG (`lucide-static-svg`)
 
-[![Crates.io](https://img.shields.io/crates/v/lucide-static-svg.svg)](https://crates.io/crates/lucide-static-svg)
-[![License](https://img.shields.io/crates/l/lucide-static-svg.svg)](LICENSE)
-
 An automated, versioned Rust crate providing official [Lucide](https://lucide.dev) icons as static SVG vector data and metadata, complete with modular Cargo features (`svg`, `path-data`, `sprite`, `font`) and an optional GPUI rendering adapter (`lucide-gpui`).
 
 Unlike icon-font crates that bundle `.ttf`/`.woff` font glyphs, `lucide-static-svg` delivers real vector path geometry, allowing UI frameworks like [GPUI](https://gpui.rs) to perform smooth frame-driven 2D transformations (`Transformation::rotate(...)`) for disclosure triggers, micro-animations, and dynamic motion.
