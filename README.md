@@ -6,15 +6,21 @@ The catalog is generated from official [Lucide](https://lucide.dev) release arch
 
 ## Install
 
+```sh
+cargo add lucide-static-svg
+```
+
+Or add it manually:
+
 ```toml
 [dependencies]
-lucide-static-svg = "1.33"
+lucide-static-svg = "1"
 ```
 
 The `svg` feature is enabled by default. Enable `path-data` when raw path geometry is needed:
 
 ```toml
-lucide-static-svg = { version = "1.33", default-features = false, features = ["svg", "path-data"] }
+lucide-static-svg = { version = "1", default-features = false, features = ["svg", "path-data"] }
 ```
 
 ## Usage
