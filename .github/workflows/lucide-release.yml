@@ -1,4 +1,5 @@
 name: Build and release lucide-static-svg
+run-name: Build and release lucide-static-svg (${{ inputs.version || 'latest' }})
 
 on:
   schedule:
@@ -40,7 +41,11 @@ jobs:
 
           if [[ -n "${REQUESTED_VERSION}" ]]; then
             requested="${REQUESTED_VERSION#v}"
-            release_json="$(gh api "repos/lucide-icons/lucide/releases/tags/${requested}")"
+            requested_tag="v${requested}"
+            if ! release_json="$(gh api "repos/lucide-icons/lucide/releases/tags/${requested_tag}")"; then
+              # Accept repositories or manually supplied versions that omit the v prefix.
+              release_json="$(gh api "repos/lucide-icons/lucide/releases/tags/${requested}")"
+            fi
             force_release=true
           else
             release_json="$(gh api repos/lucide-icons/lucide/releases/latest)"
@@ -103,6 +108,12 @@ jobs:
           echo "archive=${archive}" >> "${GITHUB_OUTPUT}"
           echo "should_release=${should_release}" >> "${GITHUB_OUTPUT}"
           echo "release_exists=${release_exists}" >> "${GITHUB_OUTPUT}"
+
+      - name: Report release version
+        if: steps.upstream.outputs.version != ''
+        env:
+          VERSION: ${{ steps.upstream.outputs.version }}
+        run: echo "Resolved Lucide release: ${VERSION}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Generate catalog
         if: steps.upstream.outputs.should_release == 'true'
