@@ -26,12 +26,13 @@ pub use generated::unicode::unicode;
 
 #[cfg(test)]
 mod tests {
-    use super::{Icon, LUCIDE_ICON_COUNT, LUCIDE_VERSION};
+    use super::{Icon, LUCIDE_ICON_COUNT, LUCIDE_RELEASE_TAG, LUCIDE_SOURCE_URL, LUCIDE_VERSION};
 
     #[test]
     fn catalog_contains_the_initial_icons() {
         assert_eq!(Icon::all().len(), LUCIDE_ICON_COUNT);
-        assert_eq!(LUCIDE_VERSION, "1.32.0");
+        assert_eq!(LUCIDE_VERSION, LUCIDE_RELEASE_TAG);
+        assert!(LUCIDE_SOURCE_URL.ends_with(LUCIDE_RELEASE_TAG));
         assert_eq!(Icon::ChevronRight.to_string(), "chevron-right");
     }
 
