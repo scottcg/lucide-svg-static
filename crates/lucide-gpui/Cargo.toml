@@ -8,8 +8,7 @@ description = "GPUI integration for lucide-static-svg"
 publish = true
 
 [dependencies]
-lucide-static-svg = { path = "../lucide-static-svg", version = "0.1.0" }
+lucide-static-svg = { path = "../lucide-static-svg" }
 
 [lints]
 workspace = true
-
