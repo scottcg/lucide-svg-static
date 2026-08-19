@@ -1,5 +1,5 @@
 name: Build and release lucide-static-svg
-run-name: Build and release lucide-static-svg (${{ inputs.version || 'latest' }})
+run-name: Build and release lucide-static-svg — Lucide ${{ inputs.version || 'latest' }}
 
 on:
   schedule:
@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   release:
+    name: Lucide ${{ inputs.version || 'latest' }} release
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
