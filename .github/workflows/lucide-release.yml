@@ -114,7 +114,8 @@ jobs:
         if: steps.upstream.outputs.version != ''
         env:
           VERSION: ${{ steps.upstream.outputs.version }}
-        run: echo "Resolved Lucide release: ${VERSION}" >> "${GITHUB_STEP_SUMMARY}"
+        run: |
+          echo "Resolved Lucide release: ${VERSION}" >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Generate catalog
         if: steps.upstream.outputs.should_release == 'true'
