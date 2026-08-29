@@ -3,7 +3,7 @@ run-name: Build and release lucide-static-svg — Lucide ${{ inputs.version || '
 
 on:
   schedule:
-    - cron: "17 3 * * 1"
+    - cron: "17 3 * * *"
   workflow_dispatch:
     inputs:
       version:
