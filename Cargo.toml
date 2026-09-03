@@ -9,6 +9,7 @@ resolver = "2"
 version = "1.39.0"
 edition = "2021"
 license = "MIT AND ISC"
+publish = false
 repository = "https://github.com/scottcg/lucide-svg-static"
 homepage = "https://lucide.dev"
 description = "Official Lucide icons as static SVG data for Rust"

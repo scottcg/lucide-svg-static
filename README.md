@@ -4,23 +4,34 @@ An offline Rust crate containing the Lucide icon catalog as generated, embedded 
 
 The catalog is generated from official [Lucide](https://lucide.dev) release archives. Runtime use has no network dependency.
 
+> **Note**: This repository is an automated release distribution. It is maintained via automation and is not published on crates.io.
+
 ## Install
 
+Add the Git dependency:
+
 ```sh
-cargo add lucide-static-svg
+cargo add lucide-static-svg --git https://github.com/scottcg/lucide-svg-static
 ```
 
-Or add it manually:
+Or add it manually to `Cargo.toml`:
 
 ```toml
 [dependencies]
-lucide-static-svg = "1"
+lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static" }
+```
+
+To pin to a specific release tag:
+
+```toml
+[dependencies]
+lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static", tag = "v1.39.0" }
 ```
 
 The `svg` feature is enabled by default. Enable `path-data` when raw path geometry is needed:
 
 ```toml
-lucide-static-svg = { version = "1", default-features = false, features = ["svg", "path-data"] }
+lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static", default-features = false, features = ["svg", "path-data"] }
 ```
 
 ## Usage

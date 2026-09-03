@@ -9,7 +9,7 @@ description = "Official Lucide icons as static SVG vector data"
 readme = "../../README.md"
 keywords = ["lucide", "icons", "svg", "vector-graphics"]
 categories = ["graphics"]
-publish = true
+publish = false
 
 [features]
 default = ["svg"]
