@@ -6,7 +6,7 @@
 
 An offline Rust crate containing the Lucide icon catalog as generated, embedded SVG data and optional SVG path data.
 
-The catalog is generated from official [Lucide](https://lucide.dev) release archives. Runtime use has no network dependency.
+The catalog is generated from official [Lucide](https://lucide.dev) release archives ([lucide-icons/lucide](https://github.com/lucide-icons/lucide)). Runtime use has no network dependency.
 
 ## Install
 
@@ -87,9 +87,9 @@ cargo clippy --workspace --all-features --all-targets -- -D warnings
 
 ## Release workflow
 
-`.github/workflows/lucide-release.yml` runs weekly and can also be started manually with an optional Lucide version. It:
+`.github/workflows/lucide-release.yml` runs daily and can also be started manually with an optional Lucide version. It:
 
-1. Downloads and verifies the official Lucide release archive.
+1. Downloads and verifies official release archives from [lucide-icons/lucide](https://github.com/lucide-icons/lucide).
 2. Regenerates the catalog when a release is needed.
 3. Runs formatting, checks, tests, and Clippy.
 4. Packages and publishes the crate to [crates.io](https://crates.io/crates/lucide-static-svg).
@@ -97,4 +97,4 @@ cargo clippy --workspace --all-features --all-targets -- -D warnings
 
 ## License
 
-The crate code and generator are licensed under **MIT**. The upstream Lucide icons are licensed under **ISC**.
+The crate code and generator are licensed under **MIT**. The upstream [Lucide icons](https://github.com/lucide-icons/lucide) are licensed under **ISC**.
