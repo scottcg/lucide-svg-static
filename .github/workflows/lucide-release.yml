@@ -167,6 +167,13 @@ jobs:
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
+      - name: Publish to crates.io
+        if: steps.upstream.outputs.should_release == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish -p lucide-static-svg
+
       - name: Create GitHub Release
         if: steps.upstream.outputs.should_release == 'true'
         env:
@@ -179,7 +186,7 @@ jobs:
         run: |
           set -euo pipefail
           release_tag="v${LUCIDE_VERSION}"
-          notes="$(printf 'lucide-static-svg %s\n\nEmbedded Lucide catalog version: %s\n\nSHA-256 (%s): %s\n\nThis release is a downloadable GitHub crate artifact. It is not published to crates.io.\n' \
+          notes="$(printf 'lucide-static-svg %s\n\nEmbedded Lucide catalog version: %s\n\nSHA-256 (%s): %s\n\nPublished to crates.io: https://crates.io/crates/lucide-static-svg\n' \
             "${CRATE_VERSION}" \
             "${LUCIDE_VERSION}" \
             "${PACKAGE##*/}" \

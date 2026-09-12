@@ -1,37 +1,40 @@
 # lucide-static-svg
 
+[![crates.io](https://img.shields.io/crates/v/lucide-static-svg.svg)](https://crates.io/crates/lucide-static-svg)
+[![docs.rs](https://docs.rs/lucide-static-svg/badge.svg)](https://docs.rs/lucide-static-svg)
+[![License](https://img.shields.io/badge/license-MIT%20AND%20ISC-blue.svg)](https://github.com/scottcg/lucide-svg-static/blob/main/LICENSE)
+
 An offline Rust crate containing the Lucide icon catalog as generated, embedded SVG data and optional SVG path data.
 
 The catalog is generated from official [Lucide](https://lucide.dev) release archives. Runtime use has no network dependency.
 
-> **Note**: This repository is an automated release distribution. It is maintained via automation and is not published on crates.io.
-
 ## Install
 
-Add the Git dependency:
+Add the dependency from [crates.io](https://crates.io/crates/lucide-static-svg):
 
 ```sh
-cargo add lucide-static-svg --git https://github.com/scottcg/lucide-svg-static
+cargo add lucide-static-svg
 ```
 
 Or add it manually to `Cargo.toml`:
 
 ```toml
 [dependencies]
-lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static" }
-```
-
-To pin to a specific release tag:
-
-```toml
-[dependencies]
-lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static", tag = "v1.39.0" }
+lucide-static-svg = "1.40"
 ```
 
 The `svg` feature is enabled by default. Enable `path-data` when raw path geometry is needed:
 
 ```toml
-lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static", default-features = false, features = ["svg", "path-data"] }
+[dependencies]
+lucide-static-svg = { version = "1.40", default-features = false, features = ["svg", "path-data"] }
+```
+
+Alternatively, you can depend on the repository directly via Git:
+
+```toml
+[dependencies]
+lucide-static-svg = { git = "https://github.com/scottcg/lucide-svg-static" }
 ```
 
 ## Usage
@@ -89,9 +92,8 @@ cargo clippy --workspace --all-features --all-targets -- -D warnings
 1. Downloads and verifies the official Lucide release archive.
 2. Regenerates the catalog when a release is needed.
 3. Runs formatting, checks, tests, and Clippy.
-4. Packages the crate, commits generated changes, and creates or refreshes a GitHub release containing the `.crate` artifact.
-
-The workflow does not publish to crates.io.
+4. Packages and publishes the crate to [crates.io](https://crates.io/crates/lucide-static-svg).
+5. Commits generated changes and creates or refreshes a GitHub release containing the `.crate` artifact.
 
 ## License
 
