@@ -20,14 +20,14 @@ Or add it manually to `Cargo.toml`:
 
 ```toml
 [dependencies]
-lucide-static-svg = "1.40"
+lucide-static-svg = "1"
 ```
 
 The `svg` feature is enabled by default. Enable `path-data` when raw path geometry is needed:
 
 ```toml
 [dependencies]
-lucide-static-svg = { version = "1.40", default-features = false, features = ["svg", "path-data"] }
+lucide-static-svg = { version = "1", default-features = false, features = ["svg", "path-data"] }
 ```
 
 Alternatively, you can depend on the repository directly via Git:

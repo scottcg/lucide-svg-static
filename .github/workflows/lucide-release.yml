@@ -10,6 +10,11 @@ on:
         description: "Lucide release version; leave empty to use the latest release"
         required: false
         type: string
+      force:
+        description: "Force regeneration and publish even if already up to date"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -36,6 +41,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REQUESTED_VERSION: ${{ inputs.version }}
+          FORCE_INPUT: ${{ inputs.force }}
         shell: bash
         run: |
           set -euo pipefail
@@ -47,6 +53,9 @@ jobs:
               # Accept repositories or manually supplied versions that omit the v prefix.
               release_json="$(gh api "repos/lucide-icons/lucide/releases/tags/${requested}")"
             fi
+            force_release=true
+          elif [[ "${FORCE_INPUT}" == "true" ]]; then
+            release_json="$(gh api repos/lucide-icons/lucide/releases/latest)"
             force_release=true
           else
             release_json="$(gh api repos/lucide-icons/lucide/releases/latest)"
@@ -89,17 +98,22 @@ jobs:
           fi
 
           release_tag="v${version}"
-          release_exists=false
+          gh_release_exists=false
           if gh release view "${release_tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            release_exists=true
-            if [[ "${force_release}" == true ]]; then
-              echo "GitHub Release ${release_tag} exists; manual run will refresh it."
-              should_release=true
-            else
-              echo "GitHub Release ${release_tag} already exists; nothing to do."
-              should_release=false
-            fi
+            gh_release_exists=true
+          fi
+
+          crates_io_exists=false
+          crate_response="$(curl -s -A "lucide-release-bot" "https://crates.io/api/v1/crates/lucide-static-svg/${version}" || true)"
+          if echo "${crate_response}" | jq -e '.version.num' >/dev/null 2>&1; then
+            crates_io_exists=true
+          fi
+
+          if [[ "${gh_release_exists}" == true && "${crates_io_exists}" == true && "${force_release}" == false ]]; then
+            echo "Both GitHub Release ${release_tag} and crates.io v${version} are up to date; nothing to do."
+            should_release=false
           else
+            echo "Release needed (GitHub Release exists: ${gh_release_exists}, crates.io exists: ${crates_io_exists}, force: ${force_release})"
             should_release=true
           fi
 
@@ -108,7 +122,8 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "archive=${archive}" >> "${GITHUB_OUTPUT}"
           echo "should_release=${should_release}" >> "${GITHUB_OUTPUT}"
-          echo "release_exists=${release_exists}" >> "${GITHUB_OUTPUT}"
+          echo "release_exists=${gh_release_exists}" >> "${GITHUB_OUTPUT}"
+          echo "crates_io_exists=${crates_io_exists}" >> "${GITHUB_OUTPUT}"
 
       - name: Report release version
         if: steps.upstream.outputs.version != ''
@@ -168,7 +183,7 @@ jobs:
           fi
 
       - name: Publish to crates.io
-        if: steps.upstream.outputs.should_release == 'true'
+        if: steps.upstream.outputs.should_release == 'true' && (steps.upstream.outputs.crates_io_exists != 'true' || inputs.force == true)
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
